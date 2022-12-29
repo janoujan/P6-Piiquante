@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const helmet = require('helmet')
 
 const path = require('path')
 const userRoutes = require('./routes/user')
@@ -19,6 +20,7 @@ mongoose.connect('mongodb+srv://janoujan:SDFsdfsdf@cluster0.lqpegbm.mongodb.net/
 app
   .use(express.json())
   .use(cors())
+  .use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 
 app.use('/api/auth', userRoutes)
 app.use('/api/sauces', saucesRoutes)
