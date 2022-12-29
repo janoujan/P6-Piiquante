@@ -5,10 +5,11 @@ const auth = require('../middleware/auth')
 
 const saucesCtrl = require('../controllers/sauce')
 
-router.post('/', auth, multer, saucesCtrl.createSauce)
+router.get('/' + '', auth, saucesCtrl.findAllSauce)
 router.get('/:id', auth, saucesCtrl.findOneSauce)
+router.post('/', auth, multer, saucesCtrl.createSauce)
 router.put('/:id', auth, multer, saucesCtrl.modifySauce)
 router.delete('/:id', auth, saucesCtrl.deleteSauce)
-router.get('/' + '', auth, saucesCtrl.findAllSauce)
+router.post('/:id/like', auth, saucesCtrl.modifySauceLike)
 
 module.exports = router
