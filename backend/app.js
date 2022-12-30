@@ -2,6 +2,8 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const helmet = require('helmet')
+const mongoSanitize = require('express-mongo-sanitize')
+const morgan = require('morgan')
 
 const path = require('path')
 const userRoutes = require('./routes/user')
@@ -14,13 +16,17 @@ mongoose.connect('mongodb+srv://janoujan:SDFsdfsdf@cluster0.lqpegbm.mongodb.net/
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => console.log('Connexion à MongoDB réussie !'))
-  .catch(() => console.log('Connexion à MongoDB échouée !'))
+  .then(() => console.log('Connexion à MongoDB réussie 🍹 !'))
+  .catch(() => console.log('Connexion à MongoDB échouée 😨!'))
+
+mongoose.set('strictQuery', false)
 
 app
   .use(express.json())
   .use(cors())
   .use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
+  .use(mongoSanitize({ replaceWith: '_' }))
+  .use(morgan('common'))
 
 app.use('/api/auth', userRoutes)
 app.use('/api/sauces', saucesRoutes)
