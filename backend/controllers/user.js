@@ -20,7 +20,7 @@ exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(user => {
       if (user === null) {
-        res.statut(401).json({ message: 'Paire mot de passe / identifiant incorrecte !' })
+        res.statut(402).json({ message: 'Paire mot de passe / identifiant incorrecte !' })
       } else {
         bcrypt.compare(req.body.password, user.password)
           .then(valid => {

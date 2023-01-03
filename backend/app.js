@@ -1,17 +1,22 @@
 const express = require('express')
+const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize')
-const morgan = require('morgan')
+
 
 const path = require('path')
 const userRoutes = require('./routes/user')
 const saucesRoutes = require('./routes/sauces')
 
 const app = express()
+dotenv.config()
 
-mongoose.connect('mongodb+srv://janoujan:SDFsdfsdf@cluster0.lqpegbm.mongodb.net/?retryWrites=true&w=majority',
+const PASSWORD = process.env.PASSWORD
+const TOKEN = process.env.TOKEN
+
+mongoose.connect(`mongodb+srv://janoujan:${PASSWORD}@cluster0.lqpegbm.mongodb.net/?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -26,8 +31,7 @@ app
   .use(cors())
   .use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
   .use(mongoSanitize({ replaceWith: '_' }))
-  .use(morgan('common'))
-
+  
 app.use('/api/auth', userRoutes)
 app.use('/api/sauces', saucesRoutes)
 app.use('/images', express.static(path.join(__dirname, 'images')))
