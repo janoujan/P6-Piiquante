@@ -36,25 +36,26 @@ exports.createSauce = (req, res, next) => {
 exports.modifySauce = (req, res, next) => {
   // look if there's a file to upload in request form/data
   const sauceObject = req.file
-    ? {  // the file exist so we get it ready for multer
+    ? {  // the file exists so we parse the JSON object and we get the file ready for multer
         ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
       }
     : { ...req.body } // there is no file so we get all the request
-  delete sauceObject.userId  // Never Trust User Input
-
-  Sauces.findOne({ _id: req.params.id })
+  delete sauceObject.userId  // Never Trust User Input : we delete userId
+  Sauces.findOne({ _id: req.params.id })  // we look for the sauce in DB
     .then(sauce => {
-      if (sauce.userId !== req.auth.userId) { // kick off opportunist
+      if (sauce.userId !== req.auth.userId) { // kick off opportunist by comparing sauce owner id and authentication id
         res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized request' })
-      } else {  // user is the owner so we update the sauce 
+      } else {  // user is the owner so we delete the old file from DB and update the sauce
+        const fileToDelete = sauce.imageUrl.split('/images/')[1]
+        console.log(fileToDelete)
+        fs.unlinkSync(`images/${fileToDelete}`)
         Sauces.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
           .then(() => res.status(httpStatus.OK).json({ message: `La sauce ${sauceObject.name} a bien été modifié 🌶️ !` }))
-          .then()
           .catch(error => 
             res.status(httpStatus.NOT_MODIFIED).json({ error }))
       }
-    })
+    })  
     .catch(error => 
       res.status(httpStatus.NOT_FOUND).json({ error }))
 }
