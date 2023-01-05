@@ -5,7 +5,6 @@ const cors = require('cors')
 const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize')
 
-
 const path = require('path')
 const userRoutes = require('./routes/user')
 const saucesRoutes = require('./routes/sauces')
@@ -14,14 +13,13 @@ const app = express()
 dotenv.config()
 
 const PASSWORD = process.env.PASSWORD
-const TOKEN = process.env.TOKEN
 
 mongoose.connect(`mongodb+srv://janoujan:${PASSWORD}@cluster0.lqpegbm.mongodb.net/?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => console.log('Connexion à MongoDB réussie 🍹 !'))
+  .then(() => console.log('Connexion à MongoDB réussie 👍!'))
   .catch(() => console.log('Connexion à MongoDB échouée 😨!'))
 
 mongoose.set('strictQuery', false)

@@ -1,6 +1,11 @@
 const bcrypt = require('bcrypt')
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
+const httpStatus = require('http-status')
+
+dotenv.config()
+const TOKEN = process.env.TOKEN
 
 exports.signup = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
@@ -10,35 +15,37 @@ exports.signup = (req, res, next) => {
         password: hash
       })
       user.save()
-        .then(() => res.status(201).json({ message: 'utilisateur créé !' }))
-        .catch(error => res.status(400).json({ error }))
+        .then(() => res.status(httpStatus.CREATED).json({ message: 'utilisateur créé !' }))
+        .catch(error => 
+          res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
     })
-    .catch(error => res.status(500).json({ error }))
+    .catch(error => 
+      res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
 }
 
 exports.login = (req, res, next) => {
   User.findOne({ email: req.body.email })
     .then(user => {
       if (user === null) {
-        res.statut(402).json({ message: 'Paire mot de passe / identifiant incorrecte !' })
+        res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error })
       } else {
         bcrypt.compare(req.body.password, user.password)
           .then(valid => {
             if (!valid) {
-              res.status(401).json({ message: 'Paire mot de passe / identifiant incorrecte !' })
+              res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error })
             } else {
-              res.status(200).json({
+              res.status(httpStatus.OK).json({
                 userId: user._id,
                 token: jwt.sign(
                   { userId: user._id },
-                  'RANDOM_TOKEN_SECRET',
+                  TOKEN,
                   { expiresIn: '24h' }
                 )
               })
             }
           })
-          .catch(error => res.status(500).json({ error }))
+          .catch(error => res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
       }
     })
-    .catch(error => res.status(500).json({ error }))
+    .catch(error => res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
 }
