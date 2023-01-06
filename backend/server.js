@@ -3,7 +3,7 @@ const app = require('./app')
 const dotenv = require('dotenv')
 dotenv.config()
 
-const normalizePort = val => {
+const normalizePort = val => { // a function to normalize port if he's given as a string or a number
   const port = parseInt(val, 10)
 
   if (isNaN(port)) {
@@ -17,7 +17,7 @@ const normalizePort = val => {
 const port = normalizePort(process.env.PORT || '3000')
 app.set('port', port)
 
-const errorHandler = error => {
+const errorHandler = error => { // a function to handle connection error
   if (error.syscall !== 'listen') {
     throw error
   }

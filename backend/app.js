@@ -22,8 +22,6 @@ mongoose.connect(`mongodb+srv://janoujan:${PASSWORD}@cluster0.lqpegbm.mongodb.ne
   .then(() => console.log('Connexion à MongoDB réussie 👍!'))
   .catch(() => console.log('Connexion à MongoDB échouée 😨!'))
 
-mongoose.set('strictQuery', false)
-
 app
   .use(express.json())
   .use(cors())

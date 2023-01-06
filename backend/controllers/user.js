@@ -8,11 +8,11 @@ dotenv.config()
 const TOKEN = process.env.TOKEN
 
 exports.signup = (req, res, next) => {
-  bcrypt.hash(req.body.password, 10)
+  bcrypt.hash(req.body.password, 10) // hash and salt password
     .then(hash => {
-      const user = new User({
+      const user = new User({ // make a new user
         email: req.body.email,
-        password: hash
+        password: hash // with password as a hash
       })
       user.save()
         .then(() => res.status(httpStatus.CREATED).json({ message: 'utilisateur créé !' }))
@@ -24,19 +24,19 @@ exports.signup = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email })
+  User.findOne({ email: req.body.email }) // find user
     .then(user => {
-      if (user === null) {
-        res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error })
+      if (user === null) { // if user not found throw error
+        res.status(httpStatus.UNAUTHORIZED).json({ error })
       } else {
-        bcrypt.compare(req.body.password, user.password)
+        bcrypt.compare(req.body.password, user.password) // user found so let bcrypt compare hashes
           .then(valid => {
-            if (!valid) {
-              res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error })
+            if (!valid) { // if comparison isn't valid throw error
+              res.status(httpStatus.UNAUTHORIZED).json({ error })
             } else {
               res.status(httpStatus.OK).json({
                 userId: user._id,
-                token: jwt.sign(
+                token: jwt.sign(  // we assign a token to the user for future authentication before future processing
                   { userId: user._id },
                   TOKEN,
                   { expiresIn: '24h' }
@@ -44,8 +44,10 @@ exports.login = (req, res, next) => {
               })
             }
           })
-          .catch(error => res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
+          .catch(error => 
+            res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
       }
     })
-    .catch(error => res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
+    .catch(error => 
+      res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
 }
