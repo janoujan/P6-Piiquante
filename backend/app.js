@@ -3,7 +3,7 @@ const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const helmet = require('helmet')
-const mongoSanitize = require('express-mongo-sanitize')
+const mongoSanitize = require('express-mongo-sanitize') // get rid of $ everywhere in req.
 
 const path = require('path')
 const userRoutes = require('./routes/user')
@@ -12,9 +12,7 @@ const saucesRoutes = require('./routes/sauces')
 const app = express()
 dotenv.config()
 
-const PASSWORD = process.env.PASSWORD
-
-mongoose.connect(`mongodb+srv://janoujan:${PASSWORD}@cluster0.lqpegbm.mongodb.net/?retryWrites=true&w=majority`,
+mongoose.connect(process.env.DBACCESS,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true

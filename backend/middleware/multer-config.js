@@ -3,7 +3,8 @@ const multer = require('multer')
 const MIME_TYPES = { // MIME_TYPES dictionnary to resolve extension name
   'image/jpg': 'jpg',
   'image/jpeg': 'jpg',
-  'image/png': 'png'
+  'image/png': 'png',
+  'image/gif': 'gif'
 }
 // we configure multer with destination and filename
 const storage = multer.diskStorage({ 
