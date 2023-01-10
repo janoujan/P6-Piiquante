@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize') // get rid of $ everywhere in req.
+const mongodbErrorHandler = require('mongoose-mongodb-errors')
 
 const path = require('path')
 const userRoutes = require('./routes/user')
@@ -19,6 +20,8 @@ mongoose.connect(process.env.DBACCESS,
   })
   .then(() => console.log('Connexion à MongoDB réussie 👍!'))
   .catch(() => console.log('Connexion à MongoDB échouée 😨!'))
+
+mongoose.plugin(mongodbErrorHandler)
 
 app
   .use(express.json())
