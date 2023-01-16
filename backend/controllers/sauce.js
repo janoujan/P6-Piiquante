@@ -99,12 +99,13 @@ exports.deleteSauce = (req, res, next) => {
 }
 
 exports.modifySauceLike = async (req, res, next) => {
+  const acceptableValues = [-1, 0, 1]
   try {
     // we get userId and like state
     const userId = req.auth.userId
     const like = req.body.like
     // we manage the case of errors
-    if (![-1, 0, 1].includes(like)) {
+    if (!acceptableValues.includes(like)) {
       return res
         .status(httpStatus.BAD_REQUEST)
         .json({ message: "Invalid 'like' value" })
@@ -206,7 +207,7 @@ exports.modifySauceLike = async (req, res, next) => {
         }
     }
   } catch (err) {
-    return next(err)
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ err })
   }
 }
 
