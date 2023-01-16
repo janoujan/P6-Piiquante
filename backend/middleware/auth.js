@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
 const httpStatus = require('http-status')
-
 dotenv.config()
 
 module.exports = (req, res, next) => {
@@ -12,12 +11,8 @@ module.exports = (req, res, next) => {
     req.auth = {
       userId
     }
-
-    if (req.body.userId !== req.auth.userId) {
-      throw new Error('User id error')
-    }
     next()
   } catch (Error) {
-    res.status(httpStatus.UNAUTHORIZED).json(Error.name + ':' + Error.message)
+    res.status(httpStatus.UNAUTHORIZED).json(Error)
   }
 }

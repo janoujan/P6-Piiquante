@@ -100,7 +100,14 @@ exports.deleteSauce = (req, res, next) => {
 
 exports.modifySauceLike = async (req, res, next) => {
   const acceptableValues = [-1, 0, 1]
+
   try {
+    // we verify if user is legit
+    if (req.body.userId !== req.auth.userId) {
+      return res
+        .status(httpStatus.UNAUTHORIZED)
+        .json({ message: 'userId error' })
+    }
     // we get userId and like state
     const userId = req.auth.userId
     const like = req.body.like
@@ -206,134 +213,7 @@ exports.modifySauceLike = async (req, res, next) => {
             .json({ message: 'You dislike this sauce' })
         }
     }
-  } catch (err) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ err })
-  }
-}
-
-/*
-exports.modifySauceLike = (req, res, next) => {
-  const userId = req.auth.userId
-  const like = req.body.like
-
-  const valuesAllowed = [-1, 0, 1]
-
-  if (!valuesAllowed.includes(like)) {
-    // we manage the cases of errors
-    return res
-      .status(httpStatus.BAD_REQUEST)
-      .json({ error: "Valeur de 'like' non valide" })
-  }
-
-  Sauces.findOne({ _id: req.params.id })
-    .then(sauce => {
-      // If the user had already given an opinion on the sauce, it is removed
-      if (sauce.usersLiked.includes(userId)) {
-        // if user had liked sauce
-        Sauces.updateOne(
-          { _id: req.params.id },
-          { $pull: { usersLiked: userId }, $inc: { likes: -1 } }
-        ) // we remove the like
-          .then(() =>
-            res
-              .status(httpStatus.OK)
-              .json({ message: 'Votre avis a été modifié.' })
-          )
-          .catch(error => res.status(httpStatus.BAD_REQUEST).json({ error }))
-      } else if (sauce.usersDisliked.includes(userId)) {
-        // if user had disliked sauce
-        Sauces.updateOne(
-          { _id: req.params.id },
-          { $pull: { usersDisliked: userId }, $inc: { dislikes: -1 } }
-        ) // we remove the dislike
-          .then(() =>
-            res
-              .status(httpStatus.OK)
-              .json({ message: 'Votre avis a été modifié.' })
-          )
-          .catch(error => res.status(httpStatus.BAD_REQUEST).json({ error }))
-      } else {
-        // The user had not yet given an opinion on the sauce, we add his opinion.
-        if (like === 1) {
-          // if user like
-          Sauces.updateOne(
-            { _id: req.params.id },
-            { $push: { usersLiked: userId }, $inc: { likes: 1 } }
-          ) // we update sauce by pushing userId in likes table and ++ likes
-            .then(() =>
-              res
-                .status(httpStatus.OK)
-                .json({ message: 'Vous avis a été pris en compte' })
-            )
-            .catch(error => res.status(httpStatus.BAD_REQUEST).json({ error }))
-        } else if (like === -1) {
-          // if user don't like
-          Sauces.updateOne(
-            { _id: req.params.id },
-            { $push: { usersDisliked: userId }, $inc: { dislikes: 1 } }
-          ) // we update sauce by pushing userId in dislikes table and ++ dislikes
-            .then(() =>
-              res
-                .status(httpStatus.OK)
-                .json({ message: 'Votre avis a été pris en compte' })
-            )
-            .catch(error => res.status(httpStatus.BAD_REQUEST).json({ error }))
-        } else {
-          res.status(httpStatus.OK).json({ message: 'votre avis a été modifié' })
-        }
-      }
-    })
-    .catch(error => res.status(httpStatus.NOT_FOUND).json({ error }))
-}
-
-exports.modifySauceLike = async (req, res, next) => {
-  try {
-    const userId = req.auth.userId
-    const like = req.body.like
-
-    const valuesAllowed = [-1, 0, 1]
-
-    if (!valuesAllowed.includes(like)) {
-      // we manage the cases of errors
-      throw new Error("Valeur de 'like' non valide")
-    }
-
-    let sauce = await Sauces.findOne({ _id: req.params.id })
-
-    // If the user had already given an opinion on the sauce, it is removed
-    if (sauce.usersLiked.includes(userId)) {
-      // if user had liked sauce
-      await Sauces.updateOne(
-        { _id: req.params.id },
-        { $pull: { usersLiked: userId }, $inc: { likes: -1 } }
-      )
-    } else if (sauce.usersDisliked.includes(userId)) {
-      // if user had disliked sauce
-      await Sauces.updateOne(
-        { _id: req.params.id },
-        { $pull: { usersDisliked: userId }, $inc: { dislikes: -1 } }
-      )
-    }
-
-    // We check if the user is giving a new opinion, if so we update it
-    if (like !== 0) {
-      let update = {}
-      if (like === 1) {
-        update = { $push: { usersLiked: userId }, $inc: { likes: 1 } }
-      } else {
-        update = { $push: { usersDisliked: userId }, $inc: { dislikes: 1 } }
-      }
-      await Sauces.updateOne({ _id: req.params.id }, update)
-    }
-
-    res
-      .status(httpStatus.OK)
-      .json({ message: 'Votre avis a été pris en compte.' })
   } catch (error) {
-    if (error.name === 'CastError' || error.name === 'Error') {
-      return res.status(httpStatus.BAD_REQUEST).json({ error: error.message })
-    }
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: error.message })
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error })
   }
 }
-*/
