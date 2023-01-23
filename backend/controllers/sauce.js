@@ -44,29 +44,24 @@ exports.modifySauce = async (req, res, next) => {
         }
       : { ...req.body }
 
-    delete sauceObject.userId   // Never Trust User Input : we delete userId
-    const sauce = await Sauces.findById(req.params.id)   // we look for the sauce in DB
-
-    if (sauce.userId !== req.auth.userId) { // if user is not the sauce's owner, kick off
+    const sauce = await Sauces.findOne({ _id: req.params.id }) // we look for the sauce in DB
+    // if user is not the sauce's owner, kick off
+    if (
+      sauceObject.userId !== req.auth.userId ||
+      sauce.userId !== req.auth.userId
+    ) {
       res
         .status(httpStatus.UNAUTHORIZED)
         .json({ message: 'Unauthorized request' })
-    } else { // user is the owner so we delete the old file from DB and update the sauce
-      const fileToDelete = sauce.imageUrl.split('/images/')[1]
-      await new Promise((resolve, reject) => {
-        fs.unlink(`images/${fileToDelete}`, err => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve()
-          }
-        })
-      })
+    } else {
+      // user is the owner so we delete the old file from DB and update the sauce
       await Sauces.updateOne({ _id: req.params.id }, { ...sauceObject })
       res.status(httpStatus.OK).json({
         message: `La sauce ${sauceObject.name} a bien été modifié 🌶️ !`,
         data: `${JSON.stringify(sauceObject)}`
       })
+      const fileToDelete = sauce.imageUrl.split('/images/')[1]
+      fs.unlinkSync(`./images/${fileToDelete}`)
     }
   } catch (error) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error })
@@ -76,12 +71,15 @@ exports.modifySauce = async (req, res, next) => {
 exports.deleteSauce = (req, res, next) => {
   Sauces.findOne({ _id: req.params.id }) // find the sauce
     .then(sauce => {
-      if (sauce.userId !== req.auth.userId) { // verify if user is the sauce's owner
+      if (sauce.userId !== req.auth.userId) {
+        // verify if user is the sauce's owner
         res.status(httpStatus.UNAUTHORIZED).json({ message: 'non authorisé !' })
       } else {
-        const filename = sauce.imageUrl.split('/images/')[1] // get filename from DB
+        const filename = sauce.imageUrl.split('/images/')[1]
+        console.log(filename)
+        // get filename from DB
         // fs.unlink() delete sauce in the callback then delete file from DB
-        fs.unlink(`images/${filename}`, () => {
+        fs.unlink(`./images/${filename}`, () => {
           Sauces.deleteOne({ _id: req.params.id })
             .then(() =>
               res
