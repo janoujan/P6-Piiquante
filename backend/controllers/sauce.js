@@ -33,47 +33,93 @@ exports.createSauce = (req, res, next) => {
     .catch(error => res.status(httpStatus.BAD_REQUEST).json({ error }))
 }
 
-exports.modifySauce = (req, res, next) => {
-  const sauceObject = req.file // look if there's a file to upload in request form/data
-    ? {
-        // if the file exists
-        ...JSON.parse(req.body.sauce), // we parse the JSON object sauce
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${
-          req.file.filename
-        }` // we assign an URL to the file
-      }
-    : { ...req.body } // if there is no file we get all the request
-  delete sauceObject.userId // Never Trust User Input : we delete userId
-  Sauces.findOne({ _id: req.params.id }) // we look for the sauce in DB
-    .then(sauce => {
-      if (sauce.userId !== req.auth.userId) {
-        // if user is not the sauce's owner, kick off
-        res
-          .status(httpStatus.UNAUTHORIZED)
-          .json({ message: 'Unauthorized request' })
-      } else {
-        // user is the owner so we delete the old file from DB and update the sauce
-        const fileToDelete = sauce.imageUrl.split('/images/')[1]
-        fs.unlinkSync(`images/${fileToDelete}`)
-        Sauces.updateOne(
-          { _id: req.params.id },
-          { ...sauceObject, _id: req.params.id }
-        )
-          .then(() =>
-            res.status(httpStatus.OK).json({
-              message: `La sauce ${sauceObject.name} a bien été modifié 🌶️ !`,
-              data: `${JSON.stringify(sauceObject)}`
-            })
-          )
-          .catch(error =>
-            res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error })
-          )
-      }
-    })
-    .catch(error =>
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error })
-    )
+exports.modifySauce = async (req, res, next) => {
+  try {
+    const sauceObject = req.file
+      ? {
+          ...JSON.parse(req.body.sauce),
+          imageUrl: `${req.protocol}://${req.get('host')}/images/${
+            req.file.filename
+          }`
+        }
+      : { ...req.body }
+
+    delete sauceObject.userId   // Never Trust User Input : we delete userId
+    const sauce = await Sauces.findById(req.params.id)   // we look for the sauce in DB
+
+    if (sauce.userId !== req.auth.userId) { // if user is not the sauce's owner, kick off
+      res
+        .status(httpStatus.UNAUTHORIZED)
+        .json({ message: 'Unauthorized request' })
+    } else { // user is the owner so we delete the old file from DB and update the sauce
+      const fileToDelete = sauce.imageUrl.split('/images/')[1]
+      await new Promise((resolve, reject) => {
+        fs.unlink(`images/${fileToDelete}`, err => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve()
+          }
+        })
+      })
+      await Sauces.updateOne({ _id: req.params.id }, { ...sauceObject })
+      res.status(httpStatus.OK).json({
+        message: `La sauce ${sauceObject.name} a bien été modifié 🌶️ !`,
+        data: `${JSON.stringify(sauceObject)}`
+      })
+    }
+  } catch (error) {
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error })
+  }
 }
+
+
+// exports.modifySauce = async (req, res, next) => {
+//   const sauceObject = req.file
+//     ? {
+//         ...JSON.parse(req.body.sauce),
+//         imageUrl: `${req.protocol}://${req.get('host')}/images/${
+//           req.file.filename
+//         }`
+//       }
+//     : { ...req.body }
+
+//   delete sauceObject.userId // Never Trust User Input : we delete userId
+//   Sauces.findOne({ _id: req.params.id }) // we look for the sauce in DB
+//     .then(sauce => {
+//       if (sauce.userId !== req.auth.userId) {
+//         // if user is not the sauce's owner, kick off
+//         res
+//           .status(httpStatus.UNAUTHORIZED)
+//           .json({ message: 'Unauthorized request' })
+//       } else {
+//         // user is the owner so we delete the old file from DB and update the sauce
+
+//         //  fs.unlinkSync(`images/${fileToDelete}`)
+//         Sauces.updateOne(
+//           { _id: req.params.id },
+//           { ...sauceObject, _id: req.params.id }
+//         ).then(() =>
+//           res.status(httpStatus.OK).json({
+//             message: `La sauce ${sauceObject.name} a bien été modifié 🌶️ !`,
+//             data: `${JSON.stringify(sauceObject)}`
+//           })
+//         )
+//         const fileToDelete = sauce.imageUrl.split('/images/')[1]
+//         console.log(fileToDelete)
+//         fs.unlink(`images/${fileToDelete}`, err => {
+//           if (err) {
+//             res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: err })
+//           } else {
+//             res
+//               .status(httpStatus.OK)
+//               .json({ message: `l'image a été supprimé 🌶️ !` })
+//           }
+//         })
+//       }
+//     })
+//     .catch(error => res.status(httpStatus.IM_A_TEAPOT).json({ error }))
+// }
 
 exports.deleteSauce = (req, res, next) => {
   Sauces.findOne({ _id: req.params.id }) // find the sauce
