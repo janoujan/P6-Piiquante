@@ -73,59 +73,10 @@ exports.modifySauce = async (req, res, next) => {
   }
 }
 
-
-// exports.modifySauce = async (req, res, next) => {
-//   const sauceObject = req.file
-//     ? {
-//         ...JSON.parse(req.body.sauce),
-//         imageUrl: `${req.protocol}://${req.get('host')}/images/${
-//           req.file.filename
-//         }`
-//       }
-//     : { ...req.body }
-
-//   delete sauceObject.userId // Never Trust User Input : we delete userId
-//   Sauces.findOne({ _id: req.params.id }) // we look for the sauce in DB
-//     .then(sauce => {
-//       if (sauce.userId !== req.auth.userId) {
-//         // if user is not the sauce's owner, kick off
-//         res
-//           .status(httpStatus.UNAUTHORIZED)
-//           .json({ message: 'Unauthorized request' })
-//       } else {
-//         // user is the owner so we delete the old file from DB and update the sauce
-
-//         //  fs.unlinkSync(`images/${fileToDelete}`)
-//         Sauces.updateOne(
-//           { _id: req.params.id },
-//           { ...sauceObject, _id: req.params.id }
-//         ).then(() =>
-//           res.status(httpStatus.OK).json({
-//             message: `La sauce ${sauceObject.name} a bien été modifié 🌶️ !`,
-//             data: `${JSON.stringify(sauceObject)}`
-//           })
-//         )
-//         const fileToDelete = sauce.imageUrl.split('/images/')[1]
-//         console.log(fileToDelete)
-//         fs.unlink(`images/${fileToDelete}`, err => {
-//           if (err) {
-//             res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: err })
-//           } else {
-//             res
-//               .status(httpStatus.OK)
-//               .json({ message: `l'image a été supprimé 🌶️ !` })
-//           }
-//         })
-//       }
-//     })
-//     .catch(error => res.status(httpStatus.IM_A_TEAPOT).json({ error }))
-// }
-
 exports.deleteSauce = (req, res, next) => {
   Sauces.findOne({ _id: req.params.id }) // find the sauce
     .then(sauce => {
-      if (sauce.userId !== req.auth.userId) {
-        // verify if user is the sauce's owner
+      if (sauce.userId !== req.auth.userId) { // verify if user is the sauce's owner
         res.status(httpStatus.UNAUTHORIZED).json({ message: 'non authorisé !' })
       } else {
         const filename = sauce.imageUrl.split('/images/')[1] // get filename from DB
