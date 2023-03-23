@@ -23,6 +23,8 @@ mongoose.connect(process.env.DBACCESS,
 
 mongoose.plugin(mongodbErrorHandler)
 
+app.options('*', cors())
+
 app
   .use(express.json())
   .use(cors())
