@@ -1,39 +1,40 @@
-const bcrypt = require('bcrypt')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
-const dotenv = require('dotenv')
-const httpStatus = require('http-status')
+const bcrypt = require('bcrypt');
+const User = require('../models/user');
+const jwt = require('jsonwebtoken');
+const httpStatus = require('http-status');
 
 exports.signup = (req, res, next) => {
-  bcrypt.hash(req.body.password, process.env.ROUND) // hash, salt and round password
-    .then(hash => {
-      const user = new User({                       // make a new user
+ bcrypt.hash(req.body.password, 10) 
+    .then((hash) => {
+      const user = new User({ 
         email: req.body.email,
-        password: hash                              // with password as a hash
-      })
+        password: hash
+      });
       user.save()
-        .then(() => res.status(httpStatus.CREATED).json({ message: 'utilisateur créé !' }))
-        .catch(error => 
-          res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error }))
+        .then(() => { 
+          res.status(httpStatus.OK).json({message: "Utilisateur créé ! 🌶️"})})
+        .catch(error => res.status(httpStatus.UNAUTHORIZED).json({ error }));
     })
-    .catch(error => 
-      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error }))
-}
+    .catch(error => res.status(httpStatus.UNAUTHORIZED).json({ error }));
+};
+
+
 
 exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email })                // find user
+  User.findOne({ email: req.body.email }) 
     .then(user => {
-      if (user === null) {                               // if user not found throw error
+      if (user === null) {
         res.status(httpStatus.UNAUTHORIZED).json({ error })
       } else {
-        bcrypt.compare(req.body.password, user.password) // user found so let bcrypt compare hashes
+        bcrypt
+          .compare(req.body.password, user.password)
           .then(valid => {
-            if (!valid) {                                // if comparison isn't valid throw error
-              res.status(httpStatus.UNAUTHORIZED).json({ error })
+            if (!valid) {
+              res.status(httpStatus.UNAUTHORIZED).json({  error })
             } else {
-              res.status(httpStatus.OK).json({           // then every cases are OK
+              res.status(httpStatus.OK).json({
                 userId: user._id,
-                token: jwt.sign(                         // we assign a token to the user for future authentication before future processing
+                token: jwt.sign(
                   { userId: user._id },
                   process.env.TOKEN,
                   { expiresIn: '24h' }
@@ -41,10 +42,12 @@ exports.login = (req, res, next) => {
               })
             }
           })
-          .catch(error => 
-            res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error }))
+          .catch(error =>
+            res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error })
+          )
       }
     })
-    .catch(error => 
-      res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error }))
-}
+    .catch(error =>
+      res.status(httpStatus.NETWORK_AUTHENTICATION_REQUIRED).json({ error })
+    )
+};
