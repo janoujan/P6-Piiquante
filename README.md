@@ -35,11 +35,11 @@ After meeting Paula, the product manager of Piiquante, she sends you the followi
           We are a small brand, so this project will have a big impact on our growth.   
         
           Attached are the specifications for the API.   
-          You will also find a link to the project repo [here](https://github.com/OpenClassrooms-Student-Center/Web-Developer-P6) where you will have access to the         interface.   
+          You will also find a link to the project repo where you will have access to the interface.   
         
           Please pay particular attention to the security requirements.   
-          We have recently been victims of attacks on our website and we want to be sure that the API of this application is built according to secure code         practices.    
-          All user passwords collected by the application must be protected!   
+          We have recently been victims of attacks on our website and we want to be sure that the API of this application is built according to secure code practices.       
+          All user passwords collected by the application must be protected!      
         
           Cordially,   
         
@@ -49,9 +49,10 @@ After meeting Paula, the product manager of Piiquante, she sends you the followi
 
 
 You are ready to get started with the API! Let's go !
-## Requirements
+## Attachments
 
 [Requirements](/Requirements_DW_P6.pdf)
+[Repo](https://github.com/OpenClassrooms-Student-Center/Web-Developer-P6)
 
 
 ## site web
