@@ -1,7 +1,7 @@
-const express = require('express')
-const router = express.Router()
-const userCtrl = require('../controllers/user')
-const rateLimit = require('express-rate-limit')
+const express = require('express');
+const router = express.Router();
+const userCtrl = require('../controllers/user');
+const rateLimit = require('express-rate-limit');
 
 // protection for bruteForce attack
 const apiLimiter = rateLimit({
@@ -9,9 +9,9 @@ const apiLimiter = rateLimit({
   max: 10, // 10 request max by min and by IP address
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false // Disable the `X-RateLimit-*` headers
-})
+});
 
-router.post('/signup', userCtrl.signup)
-router.post('/login', apiLimiter, userCtrl.login)
+router.post('/signup', apiLimiter, userCtrl.signup);
+router.post('/login', apiLimiter, userCtrl.login);
 
-module.exports = router
+module.exports = router;
