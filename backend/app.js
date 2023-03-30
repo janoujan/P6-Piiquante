@@ -39,6 +39,7 @@ app.use((req, res, next) => {
     'Access-Control-Allow-Methods',
     'GET, POST, PUT, DELETE, PATCH, OPTIONS'
   )
+  res.setHeader('Access-Control-Request-Headers', 'http://localhost:3000' )
   next()
 })
 
