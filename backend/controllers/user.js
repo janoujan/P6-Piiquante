@@ -1,8 +1,7 @@
-const bcrypt = require('bcrypt')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
-const dotenv = require('dotenv')
-const httpStatus = require('http-status')
+const bcrypt = require('bcrypt');
+const User = require('../models/user');
+const jwt = require('jsonwebtoken');
+const httpStatus = require('http-status');
 
 exports.signup = (req, res, next) => {
   bcrypt
