@@ -13,8 +13,8 @@ const saucesRoutes = require('./routes/sauces')
 const app = express()
 dotenv.config()
 
-mongoose.connect(process.env.DBACCESS,
-  {
+mongoose
+  .connect(process.env.DBACCESS, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
@@ -26,9 +26,32 @@ mongoose.plugin(mongodbErrorHandler)
 app
   .use(express.json())
   .use(cors())
-  .use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
   .use(mongoSanitize({ replaceWith: '_' }))
-  
+
+// Ajout des headers
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'
+  )
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+  )
+  next()
+})
+
+// This sets custom options for the `referrerPolicy` middleware.
+app.use(
+  helmet({
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  })
+)
+
+// Sets "Cross-Origin-Resource-Policy: cross-origin"
+app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }))
+
 app.use('/api/auth', userRoutes)
 app.use('/api/sauces', saucesRoutes)
 app.use('/images', express.static(path.join(__dirname, 'images')))
