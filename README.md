@@ -51,7 +51,8 @@ After meeting Paula, the product manager of Piiquante, she sends you the followi
 You are ready to get started with the API! Let's go !
 ## Attachments
 
-[Requirements](/Requirements_DW_P6.pdf)
+[Requirements](/Requirements_DW_P6.pdf)    
+     
 [Repo](https://github.com/OpenClassrooms-Student-Center/Web-Developer-P6)
 
 
